@@ -1,46 +1,66 @@
 # hikidasu
 
-Semantic search over a directory of markdown notes, in Japanese, with a resident embedding server.
-Built to answer one question with measurements instead of opinions: *when does grep miss, and is adding embeddings worth it for a personal knowledge base read by a coding agent?*
+[English](README.en.md)
 
-- `hikidasu "質問文"` returns the top notes (path, cosine, frontmatter description) in ~50 ms once the server is warm
-- `hikidasu-serve.py` keeps [cl-nagoya/ruri-v3-310m](https://huggingface.co/cl-nagoya/ruri-v3-310m) loaded behind a Unix socket (mode 0600), re-embeds only notes whose sha256 changed, and exits after an idle hour
-- `bench/` holds the measurement scripts used in the write-up: grep baseline, qmd (BM25 / vector / hybrid), direct embedding Recall@5, and an agent-in-the-loop benchmark driven by `claude -p`
+markdown ノートの集まりを、日本語のまま意味で検索する CLI です。
+埋め込みモデルを常駐させるので、2 回目以降は数十ミリ秒で返ります。
 
-## Install
+もとは「個人ナレッジを読むコーディングエージェントに、grep で足りるのか、埋め込みを足す価値があるのか」を、意見でなく実測で決めるために作りました。
+計測に使ったスクリプトも `bench/` に同梱しています。
+
+## できること
+
+- `hikidasu "質問文"` で、上位のノート（パス、cos 類似度、frontmatter の description）を返す。常駐後は 1 問 50 ミリ秒前後
+- `hikidasu-serve.py` が [cl-nagoya/ruri-v3-310m](https://huggingface.co/cl-nagoya/ruri-v3-310m) を読み込んだまま Unix ソケット（権限 0600）で待つ。ノートの sha256 が変わった分だけ再埋め込みし、1 時間要求が無ければ終了する
+- `bench/` に、grep のベースライン、qmd（BM25 と埋め込みとハイブリッド）、埋め込み直接、`claude -p` によるエージェント込みの Recall@5 計測スクリプトを置いている
+
+## 導入
 
 ```sh
 uv venv .venv -p 3.12 && uv pip install -p .venv/bin/python -r requirements.txt
-export HIKIDASU_KB=~/notes            # directory with patterns/ decisions/ runbooks/ (override with HIKIDASU_DIRS=a,b,c)
+export HIKIDASU_KB=~/notes            # patterns/ decisions/ runbooks/ を持つディレクトリ（HIKIDASU_DIRS=a,b,c で変更可）
 ./hikidasu "リトライの上限回数はどう決めるべき？"
 ```
 
-The first call downloads the model (~1.2 GB in safetensors) and starts the server; later calls take tens of milliseconds. `./hikidasu --status` / `--stop`. Set `HIKIDASU_OFFLINE=1` to forbid network access once the model is cached.
+初回はモデルの取得（safetensors で約 1.2 GB）と常駐サーバの起動が入ります。
+以後の呼び出しは数十ミリ秒です。
+`./hikidasu --status` で常駐の確認、`--stop` で停止ができます。
+モデルをキャッシュしたあとに `HIKIDASU_OFFLINE=1` を付けると、ネットワークに出ません。
 
-The server reads `HIKIDASU_KB` at start and refuses clients that ask for a different directory; stop it before switching.
+サーバは起動時の `HIKIDASU_KB` を保持します。
+別のディレクトリを検索したいときは、いちど `--stop` してから呼び直してください。
 
-## What the tool does not do
+## このツールがやらないこと
 
-- It never says "no match". Cosine scores of unanswerable questions (0.82–0.86 on our corpus) overlap with those of correct paraphrase hits, so the caller has to read the returned descriptions and decide. In the agent benchmark that judgment was made correctly by the agent in every unanswerable case.
-- It returns 8 results by default because, on our corpus, questions whose answer spans three notes needed rank 6–8 once the question was rephrased.
-- Queries ending in a short question clause after a full stop (「…出続ける。なぜ？」) are also embedded without that clause; the per-document max of the two is used. The rule only fires after 「。」.
+- **「該当なし」を言わない**。答えが無い問いでも cos 類似度は 0.82 から 0.86 ほど出て、同義語で言い換えた正解の値域と重なります。返った description を読んで採否を決めるのは呼び出し側（人かエージェント）の仕事です。エージェント込みの計測では、答えが無い問いはすべてエージェント側が正しく「該当なし」と判断しました
+- 既定で 8 件返します。答えが 3 ノートにまたがる問いを言い換えて投げたとき、3 本目が 6 位から 8 位に落ちることがあったためです
+- 句点のあとに短い疑問節が続く問い（「…出続ける。なぜ？」）は、その節を除いた版も埋め込み、文書ごとに高い方を採ります。この規則は「。」のあとにしか効きません
 
-## Measurements (104 Japanese notes, 2026-10-04)
+## 計測（日本語ノート 104 本、2026-10-04）
 
-Two question sets of 20 (lex 5 / synonym 6 / JA↔EN 3 / multi-note 3 / no-answer 3). Set B was written by a separate agent that had not seen set A or the tool. Recall@5 excludes the no-answer questions.
+20 問の評価セットを 2 つ使いました（語彙一致 5、同義語 6、日英の表記ゆれ 3、複数ノート横断 3、答えなし 3）。
+セット B は、セット A もツールも見ていない別のエージェントが作った held-out です。
+Recall@5 は答えなしの問いを除いて計算しています。
 
-| Searcher (input) | Set A | Set B (held-out) |
+| 検索器（入力） | セット A | セット B（held-out） |
 |---|---|---|
-| grep, per-term OR, ranked by hit lines (keywords) | 0.666 | 0.471 |
-| qmd `search`, BM25 (keywords) | 0.402 | 0.382 |
-| qmd `search`, BM25 (full sentence) | 0.000 | 0.000 |
-| ruri-v3-310m, plain (sentence) | 0.941 | 1.000 |
-| hikidasu as shipped (sentence) | 1.000 | 1.000 |
+| grep、語ごとの OR、ヒット行数順（キーワード） | 0.666 | 0.471 |
+| qmd `search`、BM25（キーワード） | 0.402 | 0.382 |
+| qmd `search`、BM25（質問文） | 0.000 | 0.000 |
+| ruri-v3-310m 素のまま（質問文） | 0.941 | 1.000 |
+| hikidasu 出荷版（質問文） | 1.000 | 1.000 |
 
-Agent-in-the-loop (Claude Code headless, 20 held-out questions, sequential): with sonnet all three instructions (grep / hikidasu / hybrid) reached the correct note in 100% of cases; input tokens were 44.8k / 22.6k / 26.4k and cost $0.077 / $0.026 / $0.028 per question, wall clock 9–10 s each. The agent expands synonyms on its own and reads the human-written index, which is why grep instructions do not lose; the embedding route mainly halves cost.
+エージェント込み（Claude Code を非対話で起動、held-out 20 問、逐次）では、sonnet はどの指示（grep、hikidasu、併用）でも正解ノートに 100% 到達しました。
+入力トークンは 44.8k、22.6k、26.4k、費用は 1 問 $0.077、$0.026、$0.028、壁時計は 9 から 10 秒です。
+エージェントは自分で類語を展開し、人が書いた索引も読むので、grep 指示でも負けません。
+埋め込みを使う利点は主に費用の半減にあります。
 
-qmd's BM25 lost to grep on Japanese because it indexes CJK runs as per-character exact phrases and ANDs every term; `third_party/qmd-patch/` is an experimental word-segmentation patch that helps keyword queries a little and sentence queries not at all.
+qmd の BM25 が日本語で grep に負けたのは、CJK の連なりを 1 文字ずつの完全一致フレーズとして索引し、すべての語を AND で結ぶためです。
+`third_party/qmd-patch/` に、語分割に置き換える実験パッチを置いています。
+キーワード入力には少し効き、質問文入力には効きません。
 
-## License
+## ライセンス
 
-MIT for the code in this repository (see LICENSE, Copyright (c) 2026 Rererr). Third-party models and the qmd patch are covered in NOTICE.md; the patch keeps upstream qmd's MIT notice.
+このリポジトリのコードは MIT です（LICENSE、Copyright (c) 2026 Rererr）。
+参照しているモデルと qmd パッチのライセンスは NOTICE.md にまとめています。
+パッチには上流 qmd の MIT 表示を同梱しています。
