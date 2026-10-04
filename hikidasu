@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Thin wrapper: runs hikidasu.py with the repo's venv python if present, else the system python3.
+HERE="$(cd "$(dirname "$(readlink "$0" || echo "$0")")" && pwd)"
+PY="$HERE/.venv/bin/python"; [ -x "$PY" ] || PY=python3
+exec "$PY" "$HERE/hikidasu.py" "$@"

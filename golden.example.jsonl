@@ -1,0 +1,5 @@
+{"id":"Q01","query":"squash マージしたブランチが git branch --merged で未マージに見える。取り込み済みの判定はどうする？","relevant":["patterns/example-squash-merge-note.md"],"tag":"lex","keywords":["squash"]}
+{"id":"Q02","query":"ログイン期限が切れたあとも、古いトークンを交換して新しいトークンが取れてしまう。どこがまずい？","relevant":["patterns/example-revocation-note.md"],"tag":"syn","keywords":["トークン","期限"]}
+{"id":"Q03","query":"リトライの上限回数はどう決めるべき？","relevant":["patterns/example-retry-note.md"],"tag":"xlang","keywords":["リトライ"]}
+{"id":"Q04","query":"マージ後、本番に反映されたことをどう確認する？","relevant":["patterns/example-merge-note.md","patterns/example-deploy-note.md"],"tag":"multi","keywords":["デプロイ","反映"]}
+{"id":"Q05","query":"投機的デコード（speculative decoding）をローカル LLM で使う設定は？","relevant":[],"tag":"none","keywords":["speculative","投機的"]}

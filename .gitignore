@@ -1,0 +1,18 @@
+# 私的データと派生物は入れない
+.venv/
+hikidasu-index.npz
+hikidasu.sock*
+hikidasu.sock.log
+knowledge-en/
+golden.jsonl
+golden-*.jsonl
+heldout/golden*.jsonl
+qmd-cache*/
+qmd-config*/
+qmd-patched/
+agent-bench*/
+agent-trials/
+result-*.md
+*.log
+*.err
+__pycache__/
