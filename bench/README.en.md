@@ -6,7 +6,7 @@ Measurement scripts. All read-only against the note directory. Golden files are 
 
 - `measure-grep.sh [KB]` grep baseline (per-term `grep -ric`, summed per file, ranked by hit lines; ties by path)
 - `measure-qmd.sh search-kw|search-sent|vsearch|query [collection]` qmd Recall@5 (needs qmd, jq, coreutils `timeout`)
-- `measure-embed.py --mode sent|kw [--model ...] [--field body|description]` direct embedding Recall@5 (needs the venv)
+- `measure-embed.py --mode sent|kw [--model ...] [--field body|description]` direct embedding Recall@5 (needs the same dependencies as hikidasu: sentence-transformers)
 - `measure-hikidasu-cli.sh` Recall@5/@8 through the shipped `hikidasu`
 - `measure-embed-variants.py` query-stripping / ensemble / chunking variants and no-answer score statistics
 - `agent-bench.sh [parallelism]` runs `claude -p` with grep / ruri / hybrid instructions over a golden file (`GOLDEN=`, `MODELS=`, `VARIANTS=`, `BENCH_DIR=`), `agent-bench-report.py [dir]` aggregates. Reach = the correct note was Read; no-answer = the reply opens with a no-match phrase. Reply correctness is not scored

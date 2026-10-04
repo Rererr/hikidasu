@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hikidasu"
+version = "0.1.0"
+description = "日本語の markdown ノートを、常駐した埋め込みモデル（ruri-v3）で意味検索する CLI / Japanese-first semantic search over markdown notes with a resident embedding server"
+readme = "README.en.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "Rererr" }]
+keywords = ["search", "embedding", "markdown", "japanese", "ruri", "knowledge-base", "claude-code"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: POSIX",
+  "Operating System :: MacOS",
+  "Topic :: Text Processing :: Indexing",
+  "Natural Language :: Japanese",
+]
+dependencies = [
+  "sentence-transformers>=3.0",
+  "torch>=2.2",
+  "numpy>=1.26",
+]
+
+[project.urls]
+Homepage = "https://github.com/Rererr/hikidasu"
+Repository = "https://github.com/Rererr/hikidasu"
+
+[project.scripts]
+hikidasu = "hikidasu.cli:main"
+hikidasu-serve = "hikidasu.serve:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hikidasu"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/hikidasu", "README.md", "README.en.md", "NOTICE.md", "NOTICE.en.md", "LICENSE", "pyproject.toml"]

@@ -16,3 +16,8 @@ result-*.md
 *.log
 *.err
 __pycache__/
+
+# パッケージ化後の生成物
+dist/
+*.egg-info/
+src/hikidasu/__pycache__/

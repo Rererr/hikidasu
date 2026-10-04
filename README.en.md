@@ -6,20 +6,34 @@ Semantic search over a directory of markdown notes, in Japanese, with a resident
 Built to answer one question with measurements instead of opinions: *when does grep miss, and is adding embeddings worth it for a personal knowledge base read by a coding agent?*
 
 - `hikidasu "質問文"` returns the top notes (path, cosine, frontmatter description) in ~50 ms once the server is warm
-- `hikidasu-serve.py` keeps [cl-nagoya/ruri-v3-310m](https://huggingface.co/cl-nagoya/ruri-v3-310m) loaded behind a Unix socket (mode 0600), re-embeds only notes whose sha256 changed, and exits after an idle hour
+- `hikidasu-serve` keeps [cl-nagoya/ruri-v3-310m](https://huggingface.co/cl-nagoya/ruri-v3-310m) loaded behind a Unix socket (mode 0600), re-embeds only notes whose sha256 changed, and exits after an idle hour
 - `bench/` holds the measurement scripts used in the write-up: grep baseline, qmd (BM25 / vector / hybrid), direct embedding Recall@5, and an agent-in-the-loop benchmark driven by `claude -p`
 
 ## Install
 
+With `uv` it is a one-liner:
+
 ```sh
-uv venv .venv -p 3.12 && uv pip install -p .venv/bin/python -r requirements.txt
-export HIKIDASU_KB=~/notes            # directory with patterns/ decisions/ runbooks/ (override with HIKIDASU_DIRS=a,b,c)
-./hikidasu "リトライの上限回数はどう決めるべき？"
+uvx --from git+https://github.com/Rererr/hikidasu hikidasu "リトライの上限回数はどう決めるべき？"
 ```
 
-The first call downloads the model (~1.2 GB in safetensors) and starts the server; later calls take tens of milliseconds. `./hikidasu --status` / `--stop`. Set `HIKIDASU_OFFLINE=1` to forbid network access once the model is cached.
+For regular use, `uv tool install git+https://github.com/Rererr/hikidasu` puts `hikidasu` and `hikidasu-serve` on your PATH (`pip install git+https://github.com/Rererr/hikidasu` works too).
+Python 3.10 or later, macOS or Linux.
 
-The server reads `HIKIDASU_KB` at start and refuses clients that ask for a different directory; stop it before switching.
+Point it at your notes with environment variables:
+
+```sh
+export HIKIDASU_KB=~/notes                 # notes directory (default ~/notes); every *.md below it is indexed recursively
+export HIKIDASU_DIRS=patterns,decisions    # optional: restrict to these top-level subdirectories
+hikidasu "リトライの上限回数はどう決めるべき？"
+```
+
+The first run downloads the model (about 1.2 GB in safetensors) and installs the dependencies (about 900 MB including torch), so it takes a few minutes.
+Later calls take tens of milliseconds.
+`hikidasu --status` shows the resident server, `--stop` stops it, `--version` prints the version.
+Set `HIKIDASU_OFFLINE=1` once the model is cached to forbid network access.
+
+The index and the server socket live under `~/.cache/hikidasu/<hash of KB>/`, one directory per KB, so several note collections can be resident at the same time.
 
 ## What the tool does not do
 

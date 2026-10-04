@@ -11,7 +11,7 @@ golden ファイルは 1 行 1 問の JSONL で、`{"id","query","relevant":[pat
 
 - `measure-grep.sh [KB]`：grep のベースライン。語ごとに `grep -ric` し、ファイル単位で合算してヒット行数順に並べる（同数はパス昇順）
 - `measure-qmd.sh search-kw|search-sent|vsearch|query [collection]`：qmd の Recall@5。qmd、jq、coreutils の `timeout` が要る
-- `measure-embed.py --mode sent|kw [--model ...] [--field body|description]`：埋め込みを直接使った Recall@5。venv が要る
+- `measure-embed.py --mode sent|kw [--model ...] [--field body|description]`：埋め込みを直接使った Recall@5。hikidasu と同じ依存（sentence-transformers）が要る
 - `measure-hikidasu-cli.sh`：出荷版の `hikidasu` を通した Recall@5 と Recall@8
 - `measure-embed-variants.py`：問いの定型句除去、原文とのアンサンブル、節ごとの埋め込みの比較と、答えなし問いのスコア分布
 - `agent-bench.sh [並列数]`：`claude -p` に grep、hikidasu、併用の 3 通りの指示を与えて golden を解かせる（`GOLDEN=`、`MODELS=`、`VARIANTS=`、`BENCH_DIR=` で変更）。`agent-bench-report.py [dir]` で集計する。到達は「正解ノートを Read したか」、答えなしは「回答の冒頭に該当なしの文言があるか」で判定し、回答文の正しさは見ていない

@@ -11,24 +11,35 @@ markdown ノートの集まりを、日本語のまま意味で検索する CLI 
 ## できること
 
 - `hikidasu "質問文"` で、上位のノート（パス、cos 類似度、frontmatter の description）を返す。常駐後は 1 問 50 ミリ秒前後
-- `hikidasu-serve.py` が [cl-nagoya/ruri-v3-310m](https://huggingface.co/cl-nagoya/ruri-v3-310m) を読み込んだまま Unix ソケット（権限 0600）で待つ。ノートの sha256 が変わった分だけ再埋め込みし、1 時間要求が無ければ終了する
+- `hikidasu-serve` が [cl-nagoya/ruri-v3-310m](https://huggingface.co/cl-nagoya/ruri-v3-310m) を読み込んだまま Unix ソケット（権限 0600）で待つ。ノートの sha256 が変わった分だけ再埋め込みし、1 時間要求が無ければ終了する
 - `bench/` に、grep のベースライン、qmd（BM25 と埋め込みとハイブリッド）、埋め込み直接、`claude -p` によるエージェント込みの Recall@5 計測スクリプトを置いている
 
 ## 導入
 
+`uv` があれば 1 行で動きます。
+
 ```sh
-uv venv .venv -p 3.12 && uv pip install -p .venv/bin/python -r requirements.txt
-export HIKIDASU_KB=~/notes            # patterns/ decisions/ runbooks/ を持つディレクトリ（HIKIDASU_DIRS=a,b,c で変更可）
-./hikidasu "リトライの上限回数はどう決めるべき？"
+uvx --from git+https://github.com/Rererr/hikidasu hikidasu "リトライの上限回数はどう決めるべき？"
 ```
 
-初回はモデルの取得（safetensors で約 1.2 GB）と常駐サーバの起動が入ります。
+常用するなら `uv tool install git+https://github.com/Rererr/hikidasu` で `hikidasu` と `hikidasu-serve` を PATH に置きます（`pip install git+https://github.com/Rererr/hikidasu` でも同じ）。
+Python 3.10 以上、macOS か Linux が対象です。
+
+検索対象は環境変数で指定します。
+
+```sh
+export HIKIDASU_KB=~/notes                 # ノートのディレクトリ（既定 ~/notes）。配下の *.md を再帰的に全部読む
+export HIKIDASU_DIRS=patterns,decisions    # 任意。直下のサブディレクトリに限定したいとき
+hikidasu "リトライの上限回数はどう決めるべき？"
+```
+
+初回はモデルの取得（safetensors で約 1.2 GB）と依存の導入（torch を含めて約 900 MB）が入り、数分かかります。
 以後の呼び出しは数十ミリ秒です。
-`./hikidasu --status` で常駐の確認、`--stop` で停止ができます。
+`hikidasu --status` で常駐の確認、`--stop` で停止、`--version` で版の確認ができます。
 モデルをキャッシュしたあとに `HIKIDASU_OFFLINE=1` を付けると、ネットワークに出ません。
 
-サーバは起動時の `HIKIDASU_KB` を保持します。
-別のディレクトリを検索したいときは、いちど `--stop` してから呼び直してください。
+索引と常駐サーバのソケットは KB ごとに `~/.cache/hikidasu/<KB のハッシュ>/` に置かれます。
+別の KB を指定すれば別の常駐が立つので、複数のノート群を同時に使えます。
 
 ## このツールがやらないこと
 

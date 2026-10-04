@@ -1,0 +1,17 @@
+# タグ v* を push したら PyPI に公開する（Trusted Publishing。PyPI 側で Rererr/hikidasu のこの workflow を publisher として登録しておく）
+name: publish
+on:
+  push:
+    tags: ["v*"]
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv build
+      - run: uv publish --trusted-publishing always

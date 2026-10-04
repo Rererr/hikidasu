@@ -1,0 +1,13 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv build
+      - run: uv run --with ./dist/*.whl --no-project python -c "import hikidasu, hikidasu.cli, hikidasu.serve, hikidasu.paths; print(hikidasu.__version__)"

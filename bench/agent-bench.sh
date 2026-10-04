@@ -3,7 +3,7 @@
 # 使い方: ./agent-bench.sh [並列数=3]   質問は QIDS、モデルは MODELS、指示は VARIANTS の環境変数で上書き可
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"; P="${1:-3}"; BDIR="${BENCH_DIR:-$HERE/agent-bench}"; mkdir -p "$BDIR"; export BDIR
-KB="${KB:-$HOME/notes}"; RS="$HERE/hikidasu"
+KB="${KB:-$HOME/notes}"; RS="${HIKIDASU_BIN:-hikidasu}"  # PATH 上の hikidasu（uv tool install 等）。別の実体は HIKIDASU_BIN で
 GOLDEN="${GOLDEN:-$HERE/golden.jsonl}"
 QIDS="${QIDS:-$(jq -r .id "$GOLDEN" | paste -sd" " -)}"  # 既定は golden 全問
 MODELS="${MODELS:-haiku sonnet opus claude-fable-5-1}"
