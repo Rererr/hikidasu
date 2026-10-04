@@ -16,13 +16,14 @@ markdown ノートの集まりを、日本語のまま意味で検索する CLI 
 
 ## 導入
 
-`uv` があれば 1 行で動きます。
+[PyPI](https://pypi.org/project/hikidasu/) に公開しています。`uv` があれば 1 行で動きます。
 
 ```sh
-uvx --from git+https://github.com/Rererr/hikidasu hikidasu "リトライの上限回数はどう決めるべき？"
+uvx hikidasu "リトライの上限回数はどう決めるべき？"
 ```
 
-常用するなら `uv tool install git+https://github.com/Rererr/hikidasu` で `hikidasu` と `hikidasu-serve` を PATH に置きます（`pip install git+https://github.com/Rererr/hikidasu` でも同じ）。
+常用するなら `uv tool install hikidasu` で `hikidasu` と `hikidasu-serve` を PATH に置きます（`pip install hikidasu` でも同じ）。
+開発版を使うときは `uvx --from git+https://github.com/Rererr/hikidasu hikidasu` です。
 Python 3.10 以上、macOS か Linux が対象です。
 
 検索対象は環境変数で指定します。

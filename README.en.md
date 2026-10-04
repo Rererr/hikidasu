@@ -11,13 +11,14 @@ Built to answer one question with measurements instead of opinions: *when does g
 
 ## Install
 
-With `uv` it is a one-liner:
+Published on [PyPI](https://pypi.org/project/hikidasu/). With `uv` it is a one-liner:
 
 ```sh
-uvx --from git+https://github.com/Rererr/hikidasu hikidasu "リトライの上限回数はどう決めるべき？"
+uvx hikidasu "リトライの上限回数はどう決めるべき？"
 ```
 
-For regular use, `uv tool install git+https://github.com/Rererr/hikidasu` puts `hikidasu` and `hikidasu-serve` on your PATH (`pip install git+https://github.com/Rererr/hikidasu` works too).
+For regular use, `uv tool install hikidasu` puts `hikidasu` and `hikidasu-serve` on your PATH (`pip install hikidasu` works too).
+For the development version use `uvx --from git+https://github.com/Rererr/hikidasu hikidasu`.
 Python 3.10 or later, macOS or Linux.
 
 Point it at your notes with environment variables:
