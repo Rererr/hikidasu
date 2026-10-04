@@ -62,5 +62,5 @@ qmd の BM25 が日本語で grep に負けたのは、CJK の連なりを 1 文
 ## ライセンス
 
 このリポジトリのコードは MIT です（LICENSE、Copyright (c) 2026 Rererr）。
-参照しているモデルと qmd パッチのライセンスは NOTICE.md にまとめています。
+参照しているモデルと qmd パッチのライセンスは NOTICE.md にまとめています（英語版は NOTICE.en.md）。
 パッチには上流 qmd の MIT 表示を同梱しています。

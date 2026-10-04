@@ -1,18 +1,23 @@
-# Third-party models and software
+# 第三者のモデルとソフトウェア
 
-This repository does not bundle any model weights. The scripts download or reference the following at run time; each is governed by its own license.
+[English](NOTICE.en.md)
 
-| Component | License | Source |
+このリポジトリにモデルの重みは含みません。
+スクリプトは実行時に次のものを取得または参照し、それぞれのライセンスに従います。
+
+| 対象 | ライセンス | 配布元 |
 |---|---|---|
-| cl-nagoya/ruri-v3-310m (default embedding model) | Apache-2.0 | https://huggingface.co/cl-nagoya/ruri-v3-310m |
-| sentence-transformers/all-MiniLM-L6-v2 (optional, English baseline) | Apache-2.0 | https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2 |
-| tobi/qmd (benchmark target; `third_party/qmd-patch/` carries a patch and its MIT license) | MIT | https://github.com/tobi/qmd |
-| ggml-org/embeddinggemma-300M-GGUF (downloaded by qmd, not by this repo) | Gemma Terms of Use | https://ai.google.dev/gemma/terms |
-| ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF (downloaded by qmd) | Apache-2.0 | https://huggingface.co/ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF |
-| tobil/qmd-query-expansion-1.7B-gguf (downloaded by qmd) | MIT | https://huggingface.co/tobil/qmd-query-expansion-1.7B-gguf |
-| qwen3:8b via ollama (optional, used only by `bench/translate.sh`) | Apache-2.0 (verify on the ollama library page) | https://ollama.com/library/qwen3 |
-| sentence-transformers / torch / numpy (installed by the user via pip) | Apache-2.0 / BSD-style / BSD-style | PyPI |
+| cl-nagoya/ruri-v3-310m（既定の埋め込みモデル） | Apache-2.0 | https://huggingface.co/cl-nagoya/ruri-v3-310m |
+| sentence-transformers/all-MiniLM-L6-v2（任意、英語の比較用） | Apache-2.0 | https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2 |
+| tobi/qmd（計測対象。`third_party/qmd-patch/` にパッチと MIT 表示を同梱） | MIT | https://github.com/tobi/qmd |
+| ggml-org/embeddinggemma-300M-GGUF（qmd が取得する。このリポジトリは取得しない） | Gemma Terms of Use | https://ai.google.dev/gemma/terms |
+| ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF（qmd が取得する） | Apache-2.0 | https://huggingface.co/ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF |
+| tobil/qmd-query-expansion-1.7B-gguf（qmd が取得する） | MIT | https://huggingface.co/tobil/qmd-query-expansion-1.7B-gguf |
+| ollama の qwen3:8b（任意、`bench/translate.sh` だけが使う） | Apache-2.0（ollama のライブラリページで確認すること） | https://ollama.com/library/qwen3 |
+| sentence-transformers、torch、numpy（利用者が pip で導入する） | Apache-2.0、BSD 系、BSD 系 | PyPI |
 
-Gemma is provided under and subject to the Gemma Terms of Use found at ai.google.dev/gemma/terms. This repository neither distributes nor modifies Gemma weights.
+Gemma は ai.google.dev/gemma/terms の Gemma Terms of Use のもとで提供されています。
+このリポジトリは Gemma の重みを配布も改変もしません。
 
-Benchmark figures in README were measured on one private 104-note Japanese corpus and do not generalize. Outputs of LLM agents quoted in the benchmark are illustrative and were not independently verified for factual accuracy.
+README の計測値は、ある個人の日本語ノート 104 本という 1 つのコーパスで測ったもので、一般化はできません。
+計測に引用した LLM エージェントの出力は例示であり、内容の正しさを別に検証していません。
